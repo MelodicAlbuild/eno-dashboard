@@ -143,6 +143,7 @@ class eno_dashboard {
     public function eno_dashboard_menu() {
         add_menu_page('ENO Dashboard Page', 'ENO Dashboard', 'edit_posts', 'eno-dashboard', array($this, 'eno_dashboard_page_render'), plugin_dir_url(__FILE__) . '../assets/images/icon_eno.png', 0);
         add_submenu_page('eno-dashboard', 'Poll Guideline Page', 'Poll Guidelines', 'edit_posts', 'eno-dashboard-poll', array($this, 'eno_dashboard_poll_page_render'));
+		add_submenu_page('eno-dashboard', 'ENO Advertisement Page', 'Advertisements', 'edit_posts', 'eno-dashboard-advertisement', array($this, 'eno_dashboard_advertisement_page_render'));
     }
 
     public function eno_dashboard_page_render() {
@@ -153,6 +154,15 @@ class eno_dashboard {
         </div>
         <?php
     }
+
+	public function eno_dashboard_advertisement_page_render() {
+		?>
+		<div>
+			<h1>This page isn't done yet! Check back later!</h1>
+            <h2>Psst, Our Poll Guidelines are done! Check them out <a href="/wp-admin/admin.php?page=eno-dashboard-poll">here</a></h2>
+		</div>
+		<?php
+	}
 
     public function eno_dashboard_poll_page_render() {
         ?>
