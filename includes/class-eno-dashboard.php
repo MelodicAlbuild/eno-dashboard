@@ -154,10 +154,14 @@ class eno_dashboard
 
     public function eno_dashboard_menu()
     {
+        // ENO Dashboard
         add_menu_page('ENO Dashboard Page', 'ENO Dashboard', 'edit_posts', 'eno-dashboard', array($this, 'eno_dashboard_page_render'), plugin_dir_url(__FILE__) . '../assets/images/icon_eno.png', 0);
         add_submenu_page('eno-dashboard', 'Poll Guideline Page', 'Poll Guidelines', 'edit_posts', 'eno-dashboard-poll', array($this, 'eno_dashboard_poll_page_render'));
         add_submenu_page('eno-dashboard', 'ENO Advertisement Page', 'Advertisements', 'edit_posts', 'eno-dashboard-advertisement', array($this, 'eno_dashboard_advertisement_page_render'));
         add_submenu_page('eno-dashboard', 'ENO Dashboard Settings', 'ENO Dashboard Settings', 'manage_options', 'eno-dashboard-settings', array($this, 'eno_dashboard_settings_page_render'));
+
+        // ENO Admin
+        add_menu_page('ENO Admin Page', 'ENO Admin', 'manage_options', 'eno-dashboard', array($this, 'eno_admin_page_render'), plugin_dir_url(__FILE__) . '../assets/images/icon_eno.png', 0);
     }
 
     public function eno_dashboard_page_render()
@@ -168,6 +172,16 @@ class eno_dashboard
             <h1>This page isn't done yet! Check back later!</h1>
             <h2>Psst, Our Poll Guidelines are done! Check them out <a href="/wp-admin/admin.php?page=eno-dashboard-poll">here</a></h2>
             <h2>Also check out advertising <a href="/wp-admin/admin.php?page=eno-dashboard-advertisement">here</a></h2>
+        </div>
+        <?php
+    }
+
+    public function eno_admin_page_render()
+    {
+        ?>
+        <div style="margin: auto; text-align: center">
+            <h1><?php echo self::$announcement ?></h1>
+            <h1>Hello Admins! More to come soon!</h1>
         </div>
         <?php
     }
