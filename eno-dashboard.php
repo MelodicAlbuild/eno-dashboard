@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: ENO Dashboard
- * Version: 1.2.0-Pre1
+ * Version: 1.2.0-Pre4
  * Description: The Basic ENO Dashboard
  * Author: Alex Drum
  * Requires at least: 6.0
@@ -36,37 +36,33 @@ function jal_install() {
     global $wpdb;
     global $jal_db_version;
 
-    $table_name = $wpdb->prefix . 'enodashboardannouncements';
+    $table_name = $wpdb->prefix . 'eno_assets';
 
     $charset_collate = $wpdb->get_charset_collate();
 
-    $sql = "CREATE TABLE $table_name (
-            value VARCHAR(255) NOT NULL DEFAULT '',
-	        date DATE(10) NOT NULL DEFAULT ''
+    $sql = "CREATE TABLE `$table_name` (
+	`idTag` INT(6) NOT NULL UNIQUE,
+	`brand` VARCHAR(255),
+	`serialNumber` VARCHAR(255),
+	`checkedOut` BOOLEAN NOT NULL,
+	`checkedOutUser` VARCHAR(255),
+	`checkedOutDate` DATE,
+	`checkedOutFrom` VARCHAR(255),
+	PRIMARY KEY (`idTag`)
         ) $charset_collate;";
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     dbDelta( $sql );
 
     add_option( 'jal_db_version', $jal_db_version );
-}
 
-function jal_install_data() {
-    global $wpdb;
-
-    $table_name = $wpdb->prefix . 'enodashboardannouncements';
-
-    $wpdb->insert(
-        $table_name,
-        array(
-            'date' => date("Y-m-d"),
-            'value' => "Announcement"
-        )
-    );
+    //Our class extends the WP_List_Table class, so we need to make sure that it's there
+    if(!class_exists('WP_List_Table')){
+        require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+    }
 }
 
 register_activation_hook( __FILE__, 'jal_install' );
-register_activation_hook( __FILE__, 'jal_install_data' );
 
 /**
  * Returns the main instance of eno-dashboard to prevent the need to use globals.

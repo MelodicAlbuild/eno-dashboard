@@ -114,6 +114,33 @@ class eno_dashboard
     public static $announcement;
 
     /**
+     * Table List Admin
+     *
+     * @var     object
+     * @access  public
+     * @since   1.2.0
+     */
+    public $wp_list_table;
+
+    /**
+     * Table List Checkout
+     *
+     * @var     object
+     * @access  public
+     * @since   1.2.0
+     */
+    public $wp_list_table_check;
+
+    /**
+     * Table List Checkout
+     *
+     * @var     object
+     * @access  public
+     * @since   1.2.0
+     */
+    public $table_ids = array();
+
+    /**
      * Constructor funtion.
      *
      * @param string $file File constructor.
@@ -121,6 +148,13 @@ class eno_dashboard
      */
     public function __construct($file = '', $version = '1.0.0')
     {
+        //Our class extends the WP_List_Table class, so we need to make sure that it's there
+        if(!class_exists('WP_List_Table')){
+            require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+        }
+
+        require_once( ABSPATH . 'wp-content/plugins/eno-dashboard/includes/table-classes.php' );
+
         $this->_version = $version;
         $this->_token   = 'eno-dashboard';
 
@@ -155,6 +189,7 @@ class eno_dashboard
     public function eno_dashboard_menu()
     {
         add_menu_page('ENO Dashboard Page', 'ENO Dashboard', 'edit_posts', 'eno-dashboard', array($this, 'eno_dashboard_page_render'), plugin_dir_url(__FILE__) . '../assets/images/icon_eno.png', 0);
+        $hook_name_3 = add_submenu_page('eno-dashboard', 'Asset Checkout', 'Asset Checkout', 'edit_posts', 'eno-dashboard-asset-checkout', array($this, 'eno_dashboard_asset_checkout_render'));
         add_submenu_page('eno-dashboard', 'Poll Guideline Page', 'Poll Guidelines', 'edit_posts', 'eno-dashboard-poll', array($this, 'eno_dashboard_poll_page_render'));
         add_submenu_page('eno-dashboard', 'ENO Advertisement Page', 'Advertisements', 'edit_posts', 'eno-dashboard-advertisement', array($this, 'eno_dashboard_advertisement_page_render'));
         add_submenu_page('eno-dashboard', 'ENO Dashboard Settings', 'ENO Dashboard Settings', 'manage_options', 'eno-dashboard-settings', array($this, 'eno_dashboard_settings_page_render'));
@@ -169,6 +204,137 @@ class eno_dashboard
             <h2>Psst, Our Poll Guidelines are done! Check them out <a href="/wp-admin/admin.php?page=eno-dashboard-poll">here</a></h2>
             <h2>Also check out advertising <a href="/wp-admin/admin.php?page=eno-dashboard-advertisement">here</a></h2>
         </div>
+        <?php
+    }
+
+    public function loading_table_data() {
+        global $wpdb;
+
+        if (isset($_COOKIE['eno_checkout_amount'])) {
+            if ($_COOKIE['eno_checkout_amount'] != 0) {
+                for ($x = 0; $x < $_COOKIE['eno_checkout_amount']; $x++) {
+                    array_push($this->table_ids, $_COOKIE['eno_checkout_id_' . $x]);
+                }
+            }
+        }
+
+        if (isset($_GET['action']) && $_GET['page'] == "eno-dashboard-asset-checkout" && $_GET['action'] == "remove") {
+            $idTag = intval($_GET['tag']);
+
+            if (isset($_COOKIE['eno_checkout_amount'])) {
+                if ($_COOKIE['eno_checkout_amount'] != 0) {
+                    for ($x = 0; $x < $_COOKIE['eno_checkout_amount']; $x++) {
+                        if($_COOKIE['eno_checkout_id_' . $x] == $idTag) {
+                            setcookie('eno_checkout_id_' . $x, "".$idTag, strtotime('-30 days'));
+                        }
+                    }
+                }
+            }
+
+            setcookie('eno_checkout_amount', $_COOKIE['eno_checkout_amount']--, strtotime('+30 days'));
+
+            $this->table_ids = array_diff($this->table_ids, [$idTag]);
+        }
+
+        if(array_key_exists('button1', $_POST)) {
+            if(isset($_POST['idTag'])) {
+                array_push($this->table_ids, $_POST["idTag"]);
+            }
+
+            $i = 0;
+            foreach ($this->table_ids as $table_id) {
+                setcookie('eno_checkout_id_' . $i, "".$table_id, strtotime('-30 days'));
+                $i++;
+            }
+            setcookie('eno_checkout_amount', "".$i, strtotime('-30 days'));
+        }
+        elseif (array_key_exists('button2', $_POST)) {
+            // Check Out Code
+            $user = wp_get_current_user();
+            $user_name = $user->display_name;
+
+            $error = FALSE;
+
+            foreach ($this->table_ids as $table_id) {
+                $item = $wpdb->get_results(
+                    "SELECT * FROM wp_eno_assets WHERE idTag=" . $table_id
+                );
+
+                foreach ($item as $it) {
+                    if($it->checkedOut == 1) {
+                        $error = TRUE;
+                        setcookie('eno_checkout_error', 'One of the above items is Checked Out, Please Remove that item.', strtotime('+1 minute'));
+                    }
+                }
+
+                if(!$error) {
+                    $wpdb->update('wp_eno_assets', array('checkedOut' => TRUE, 'checkedOutUser' => $user_name, 'checkedOutDate' => date("Y-m-d"), 'checkedOutFrom' => 'Plugin'), array('idTag' => $table_id));
+                }
+            }
+
+            if(!$error) {
+                $i = 0;
+                foreach ($this->table_ids as $table_id) {
+                    setcookie('eno_checkout_id_' . $i, "".$table_id, strtotime('-30 days'));
+                    $i++;
+                }
+                setcookie('eno_checkout_amount', "".$i, strtotime('-30 days'));
+            }
+        }
+        else {
+            if(isset($_POST['idTag'])) {
+                array_push($this->table_ids, $_POST["idTag"]);
+            }
+
+            $i = 0;
+            foreach ($this->table_ids as $table_id) {
+                setcookie('eno_checkout_id_' . $i, "".$table_id, strtotime('+30 days'));
+                $i++;
+            }
+            setcookie('eno_checkout_amount', "".$i, strtotime('+30 days'));
+        }
+    }
+
+    public function eno_dashboard_asset_checkout_render()
+    {
+        echo '<div class="wrap"><h2>ENO Asset Checkout</h2>';
+        //Prepare Table of elements
+        $this->wp_list_table_check->prepare_items();
+
+        ?>
+        <form method="post">
+            <input type="hidden" name="page" value="eno-dashboard-asset-checkout" />
+            <?php $this->wp_list_table_check->search_box('Search', 'search_id'); ?>
+        </form>
+        <?php
+
+        //Table of elements
+        $this->wp_list_table_check->display();
+        echo '</div>';
+
+        ?>
+        <div class="wrap">
+            <?php
+            if(isset($_COOKIE['eno_checkout_error'])) {
+                echo '<p style="color: red;"> ' . $_COOKIE['eno_checkout_error'] . '</p>';
+            }
+            ?>
+
+            <form method="post">
+                <input style='display:inline;' type="submit" name="button1"
+                       class="button" value="Clear Items" /><p style='display:inline;'>&nbsp;&nbsp;</p><input style='display:inline;' type="submit" name="button2"
+                       class="button" value="Check Out Items" />
+            </form>
+
+            <form method="post" action="?page=eno-dashboard-asset-checkout">
+                <div id="universal-message-container-2">
+                    <h2>Select Asset</h2>
+                    <div class="options">
+                        <label>ID Tag: </label><br/><br/><input type="text" name="idTag" /><br /><br />
+                        <input type="submit" value="Submit" />
+                    </div><!-- #universal-message-container -->
+            </form>
+        </div><!-- .wrap -->
         <?php
     }
 
@@ -188,6 +354,62 @@ class eno_dashboard
             self::$announcement = $_GET['query'];
             echo self::$announcement;
         }?>
+        <?php
+    }
+
+    public function init_list_table() {
+        $this->wp_list_table = new Asset_List_Table();
+    }
+
+    public function init_list_table_checkout() {
+        $this->wp_list_table_check = new Check_List_Table();
+    }
+
+    public function eno_admin_asset_manage_render()
+    {
+        echo '<div class="wrap"><style>#the-list .row-actions{left:0;}</style><h1>ENO Asset Management</h1>';
+        echo '<h2>ENO Asset List</h2>';
+        //Prepare Table of elements
+        $this->wp_list_table->prepare_items();
+
+        ?>
+        <form method="post">
+            <input type="hidden" name="page" value="eno-asset-management" />
+            <?php $this->wp_list_table->search_box('Search', 'search_id'); ?>
+        </form>
+        <?php
+
+        //Table of elements
+        $this->wp_list_table->display();
+        echo '</div>';
+
+        ?>
+        <div class="wrap">
+            <form method="post" action="?page=eno-asset-manager">
+                <div id="universal-message-container">
+                    <h2>Add Asset</h2>
+                    <div class="options">
+                        <label>ID Tag: </label><br/><input type="text" name="idTag" /><br />
+                        <br/>
+                        <label>Brand: </label><br/><input type="text" name="brand" /><br />
+                        <br/>
+                        <label>Serial Number: </label><br/><input type="text" name="serialNumber" /><br />
+                        <br/>
+                        <input type="submit" value="Submit" />
+                    </div><!-- #universal-message-container -->
+                    <?php
+                    $default = array(
+                        'idTag' => '',
+                        'brand' => '',
+                        'serialNumber' => '',
+                        'checkedOut' => FALSE,
+                    );
+                    $item = shortcode_atts( $default, $_REQUEST );
+                    global $wpdb;
+                    $wpdb->insert( "wp_eno_assets", $item );
+                    ?>
+            </form>
+        </div><!-- .wrap -->
         <?php
     }
 
