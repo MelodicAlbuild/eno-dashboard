@@ -132,6 +132,15 @@ class eno_dashboard
     public $wp_list_table_check;
 
     /**
+     * Table List Checkin
+     *
+     * @var     object
+     * @access  public
+     * @since   1.2.0
+     */
+    public $wp_list_table_check_in;
+
+    /**
      * Table List Checkout
      *
      * @var     object
@@ -190,9 +199,18 @@ class eno_dashboard
     {
         add_menu_page('ENO Dashboard Page', 'ENO Dashboard', 'edit_posts', 'eno-dashboard', array($this, 'eno_dashboard_page_render'), plugin_dir_url(__FILE__) . '../assets/images/icon_eno.png', 0);
         $hook_name_3 = add_submenu_page('eno-dashboard', 'Asset Checkout', 'Asset Checkout', 'edit_posts', 'eno-dashboard-asset-checkout', array($this, 'eno_dashboard_asset_checkout_render'));
-        add_submenu_page('eno-dashboard', 'Poll Guideline Page', 'Poll Guidelines', 'edit_posts', 'eno-dashboard-poll', array($this, 'eno_dashboard_poll_page_render'));
-        add_submenu_page('eno-dashboard', 'ENO Advertisement Page', 'Advertisements', 'edit_posts', 'eno-dashboard-advertisement', array($this, 'eno_dashboard_advertisement_page_render'));
-        add_submenu_page('eno-dashboard', 'ENO Dashboard Settings', 'ENO Dashboard Settings', 'manage_options', 'eno-dashboard-settings', array($this, 'eno_dashboard_settings_page_render'));
+        $hook_name_4 = add_submenu_page('eno-dashboard', 'Asset Check In', 'Asset Check In', 'edit_posts', 'eno-dashboard-asset-checkin', array($this, 'eno_dashboard_asset_checkin_render'));
+        //add_submenu_page('eno-dashboard', 'Poll Guideline Page', 'Poll Guidelines', 'edit_posts', 'eno-dashboard-poll', array($this, 'eno_dashboard_poll_page_render'));
+        //add_submenu_page('eno-dashboard', 'ENO Advertisement Page', 'Advertisements', 'edit_posts', 'eno-dashboard-advertisement', array($this, 'eno_dashboard_advertisement_page_render'));
+
+        // ENO Admin
+        add_menu_page('ENO Admin Page', 'ENO Admin', 'manage_options', 'eno-admin', array($this, 'eno_admin_page_render'), plugin_dir_url(__FILE__) . '../assets/images/icon_eno.png', 0);
+        $hook_name_2 = add_submenu_page('eno-admin', 'ENO Asset Management', 'ENO Asset Management', 'manage_options', 'eno-asset-manager', array($this, 'eno_admin_asset_manage_render'));
+
+        add_action( "load-$hook_name_2", [ $this, 'init_list_table' ] );
+        add_action( "load-$hook_name_3", [ $this, 'init_list_table_checkout' ] );
+        add_action( "load-$hook_name_4", [ $this, 'init_list_table_checkin' ] );
+        add_action( "load-$hook_name_3", [ $this, 'loading_table_data' ] );
     }
 
     public function eno_dashboard_page_render()
@@ -201,8 +219,7 @@ class eno_dashboard
         <div style="margin: auto; text-align: center">
             <h1><?php echo self::$announcement ?></h1>
             <h1>This page isn't done yet! Check back later!</h1>
-            <h2>Psst, Our Poll Guidelines are done! Check them out <a href="/wp-admin/admin.php?page=eno-dashboard-poll">here</a></h2>
-            <h2>Also check out advertising <a href="/wp-admin/admin.php?page=eno-dashboard-advertisement">here</a></h2>
+            <h2>Psst, Our Asset System is done! Check it out <a href="/wp-admin/admin.php?page=eno-dashboard-asset-checkout">here</a></h2>
         </div>
         <?php
     }
@@ -338,6 +355,24 @@ class eno_dashboard
         <?php
     }
 
+    public function eno_dashboard_asset_checkin_render()
+    {
+        echo '<div class="wrap"><h2>ENO Asset Check In</h2>';
+        //Prepare Table of elements
+        $this->wp_list_table_check_in->prepare_items();
+
+        ?>
+        <form method="post">
+            <input type="hidden" name="page" value="eno-dashboard-asset-checkout" />
+            <?php $this->wp_list_table_check_in->search_box('Search', 'search_id'); ?>
+        </form>
+        <?php
+
+        //Table of elements
+        $this->wp_list_table_check_in->display();
+        echo '</div>';
+    }
+
     public function eno_dashboard_settings_page_render()
     {
         ?>
@@ -363,6 +398,10 @@ class eno_dashboard
 
     public function init_list_table_checkout() {
         $this->wp_list_table_check = new Check_List_Table();
+    }
+
+    public function init_list_table_checkin() {
+        $this->wp_list_table_check_in = new Check_In_List_Table();
     }
 
     public function eno_admin_asset_manage_render()
