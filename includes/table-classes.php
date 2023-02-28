@@ -40,6 +40,7 @@ class Asset_List_Table extends WP_List_Table {
         return $columns = array(
             'col_asset_tag'=>__('Tag'),
             'col_asset_brand'=>__('Brand'),
+            'col_asset_model'=>__('Model'),
             'col_asset_serial'=>__('Serial Number'),
             'col_asset_checked_out'=>__('Checked Out'),
             'col_asset_checked_out_user'=>__('Checked Out By'),
@@ -67,6 +68,7 @@ class Asset_List_Table extends WP_List_Table {
         return $sortable = array(
             'col_asset_tag'=>'idTag',
             'col_asset_brand'=>'brand',
+            'col_asset_model'=>'model',
             'col_asset_checked_out'=>'checkedOut',
             'col_asset_checked_out_user'=>'checkedOutUser',
             'col_asset_checked_out_date'=>'checkedOutDate',
@@ -80,7 +82,7 @@ class Asset_List_Table extends WP_List_Table {
 
         if (!empty($search)) {
             return $wpdb->get_results(
-                "SELECT idTag, brand, serialNumber, checkedOut, checkedOutUser, checkedOutDate, checkedOutFrom FROM wp_eno_assets WHERE idTag LIKE '%{$search}%' OR brand LIKE '%{$search}%' OR serialNumber LIKE '%{$search}%' OR checkedOut LIKE '%{$search}%' OR checkedOutUser LIKE '%{$search}%' OR checkedOutDate LIKE '%{$search}%' OR checkedOutFrom LIKE '%{$search}%' {$args}"
+                "SELECT idTag, brand, model, serialNumber, checkedOut, checkedOutUser, checkedOutDate, checkedOutFrom FROM wp_eno_assets WHERE idTag LIKE '%{$search}%' OR brand LIKE '%{$search}%' OR serialNumber LIKE '%{$search}%' OR checkedOut LIKE '%{$search}%' OR checkedOutUser LIKE '%{$search}%' OR checkedOutDate LIKE '%{$search}%' OR checkedOutFrom LIKE '%{$search}%' {$args}"
             );
         }else{
             return $wpdb->get_results(
@@ -115,7 +117,7 @@ class Asset_List_Table extends WP_List_Table {
         /* -- Pagination parameters -- */
         //Number of elements in your table?
         if (isset($_POST['page']) && isset($_POST['s'])) {
-            $totalitems = $wpdb->query("SELECT idTag, brand, serialNumber, checkedOut, checkedOutUser, checkedOutDate, checkedOutFrom FROM wp_eno_assets WHERE idTag LIKE '%{$_POST['s']}%' OR brand Like '%{$_POST['s']}%' OR serialNumber Like '%{$_POST['s']}%' OR checkedOut Like '%{$_POST['s']}%' OR checkedOutUser Like '%{$_POST['s']}%' OR checkedOutDate Like '%{$_POST['s']}%' OR checkedOutFrom Like '%{$_POST['s']}%'");
+            $totalitems = $wpdb->query("SELECT idTag, brand, model, serialNumber, checkedOut, checkedOutUser, checkedOutDate, checkedOutFrom FROM wp_eno_assets WHERE idTag LIKE '%{$_POST['s']}%' OR brand Like '%{$_POST['s']}%' OR serialNumber Like '%{$_POST['s']}%' OR checkedOut Like '%{$_POST['s']}%' OR checkedOutUser Like '%{$_POST['s']}%' OR checkedOutDate Like '%{$_POST['s']}%' OR checkedOutFrom Like '%{$_POST['s']}%'");
         } else {
             $totalitems = $wpdb->query("SELECT * FROM wp_eno_assets");
         }
@@ -223,6 +225,7 @@ class Asset_List_Table extends WP_List_Table {
                     switch ( $column_name ) {
                         case "col_asset_tag": echo '<td '.$attributes.'>'.$updatedId.'</td>'; break;
                         case "col_asset_brand": echo '<td '.$attributes.'>'.$rec->brand.'</td>'; break;
+                        case "col_asset_model": echo '<td '.$attributes.'>'.$rec->model.'</td>'; break;
                         case "col_asset_serial": echo '<td '.$attributes.'>'.$rec->serialNumber.'</td>'; break;
                         case "col_asset_checked_out": echo '<td '.$attributes.'>'.$updatedCheckOut.'</td>'; break;
                         case "col_asset_checked_out_user": echo '<td '.$attributes.'>'.$updatedCheckOutUser.'</td>'; break;
@@ -305,6 +308,7 @@ class Check_List_Table extends WP_List_Table {
         return $columns = array(
             'col_asset_tag'=>__('Tag'),
             'col_asset_brand'=>__('Brand'),
+            'col_asset_model'=>__('Model'),
             'col_asset_checked_out'=>__('Checked Out'),
             'col_asset_checked_out_user'=>__('Checked Out By'),
             'col_asset_remove'=>__('Remove Asset')
@@ -319,6 +323,7 @@ class Check_List_Table extends WP_List_Table {
         return $sortable = array(
             'col_asset_tag'=>'idTag',
             'col_asset_brand'=>'brand',
+            'col_asset_model'=>'model',
             'col_asset_checked_out'=>'checkedOut',
             'col_asset_checked_out_user'=>'checkedOutUser',
         );
@@ -330,11 +335,11 @@ class Check_List_Table extends WP_List_Table {
 
         if (!empty($search)) {
             return $wpdb->get_results(
-                "SELECT idTag, brand, checkedOut, checkedOutUser FROM wp_eno_assets WHERE idTag IN (". implode(',', $tids) . ") {$args}"
+                "SELECT idTag, brand, model, checkedOut, checkedOutUser FROM wp_eno_assets WHERE idTag IN (". implode(',', $tids) . ") {$args}"
             );
         }else{
             return $wpdb->get_results(
-                "SELECT idTag, brand, checkedOut, checkedOutUser FROM wp_eno_assets WHERE idTag IN (". implode(',', $tids) . ") {$args}"
+                "SELECT idTag, brand, model, checkedOut, checkedOutUser FROM wp_eno_assets WHERE idTag IN (". implode(',', $tids) . ") {$args}"
             );
         }
     }
@@ -364,7 +369,7 @@ class Check_List_Table extends WP_List_Table {
 
         /* -- Pagination parameters -- */
         //Number of elements in your table?
-        $totalitems = $wpdb->query("SELECT idTag, brand, checkedOut, checkedOutUser FROM wp_eno_assets WHERE idTag IN (". implode(',', $this->getIds()) . ")");
+        $totalitems = $wpdb->query("SELECT idTag, brand, model, checkedOut, checkedOutUser FROM wp_eno_assets WHERE idTag IN (". implode(',', $this->getIds()) . ")");
         //How many to display per page?
         $perpage = 20;
         //Which page is this?
@@ -465,6 +470,7 @@ class Check_List_Table extends WP_List_Table {
                     switch ( $column_name ) {
                         case "col_asset_tag": echo '<td '.$attributes.'>'.$updatedId.'</td>'; break;
                         case "col_asset_brand": echo '<td '.$attributes.'>'.$rec->brand.'</td>'; break;
+                        case "col_asset_model": echo '<td '.$attributes.'>'.$rec->model.'</td>'; break;
                         case "col_asset_checked_out": echo '<td '.$attributes.'>'.$updatedCheckOut.'</td>'; break;
                         case "col_asset_checked_out_user": echo '<td '.$attributes.'>'.$updatedCheckOutUser.'</td>'; break;
                         case "col_asset_remove": echo '<td '.$attributes.'>'.'<a href="?page='.$_REQUEST['page'].'&action=remove&tag='.$rec->idTag.'">Remove</a>'.'</td>'; break;
@@ -519,6 +525,7 @@ class Check_In_List_Table extends WP_List_Table {
         return $columns = array(
             'col_asset_tag'=>__('Tag'),
             'col_asset_brand'=>__('Brand'),
+            'col_asset_model'=>__('Model'),
             'col_asset_checked_out'=>__('Checked Out'),
             'col_asset_checked_out_user'=>__('Checked Out By'),
             'col_asset_remove'=>__('Check In Asset')
@@ -533,6 +540,7 @@ class Check_In_List_Table extends WP_List_Table {
         return $sortable = array(
             'col_asset_tag'=>'idTag',
             'col_asset_brand'=>'brand',
+            'col_asset_model'=>'model',
             'col_asset_checked_out'=>'checkedOut',
             'col_asset_checked_out_user'=>'checkedOutUser',
         );
@@ -544,11 +552,11 @@ class Check_In_List_Table extends WP_List_Table {
 
         if (!empty($search)) {
             return $wpdb->get_results(
-                "SELECT idTag, brand, checkedOut, checkedOutUser FROM wp_eno_assets WHERE checkedOutUser LIKE '%{$this->this_user->display_name}%' {$args}"
+                "SELECT idTag, brand, model, checkedOut, checkedOutUser FROM wp_eno_assets WHERE checkedOutUser LIKE '%{$this->this_user->display_name}%' {$args}"
             );
         }else{
             return $wpdb->get_results(
-                "SELECT idTag, brand, checkedOut, checkedOutUser FROM wp_eno_assets WHERE checkedOutUser LIKE '%{$this->this_user->display_name}%' {$args}"
+                "SELECT idTag, brand, model, checkedOut, checkedOutUser FROM wp_eno_assets WHERE checkedOutUser LIKE '%{$this->this_user->display_name}%' {$args}"
             );
         }
     }
@@ -578,7 +586,7 @@ class Check_In_List_Table extends WP_List_Table {
 
         /* -- Pagination parameters -- */
         //Number of elements in your table?
-        $totalitems = $wpdb->query("SELECT idTag, brand, checkedOut, checkedOutUser FROM wp_eno_assets WHERE checkedOutUser LIKE '%{$this->this_user->display_name}%'");
+        $totalitems = $wpdb->query("SELECT idTag, brand, model, checkedOut, checkedOutUser FROM wp_eno_assets WHERE checkedOutUser LIKE '%{$this->this_user->display_name}%'");
         //How many to display per page?
         $perpage = 20;
         //Which page is this?
@@ -679,6 +687,7 @@ class Check_In_List_Table extends WP_List_Table {
                     switch ( $column_name ) {
                         case "col_asset_tag": echo '<td '.$attributes.'>'.$updatedId.'</td>'; break;
                         case "col_asset_brand": echo '<td '.$attributes.'>'.$rec->brand.'</td>'; break;
+                        case "col_asset_model": echo '<td '.$attributes.'>'.$rec->model.'</td>'; break;
                         case "col_asset_checked_out": echo '<td '.$attributes.'>'.$updatedCheckOut.'</td>'; break;
                         case "col_asset_checked_out_user": echo '<td '.$attributes.'>'.$updatedCheckOutUser.'</td>'; break;
                         case "col_asset_remove": echo '<td '.$attributes.'>'.'<a href="?page='.$_REQUEST['page'].'&action=checkin&tag='.$rec->idTag.'">Check In</a>'.'</td>'; break;
