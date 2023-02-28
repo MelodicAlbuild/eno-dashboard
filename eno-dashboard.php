@@ -43,6 +43,7 @@ function jal_install() {
     $sql = "CREATE TABLE `$table_name` (
 	`idTag` INT(6) NOT NULL UNIQUE,
 	`brand` VARCHAR(255),
+    `model` VARCHAR(255),
 	`serialNumber` VARCHAR(255),
 	`checkedOut` BOOLEAN NOT NULL,
 	`checkedOutUser` VARCHAR(255),
