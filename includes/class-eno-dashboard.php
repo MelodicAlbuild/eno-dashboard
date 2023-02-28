@@ -432,6 +432,8 @@ class eno_dashboard
                         <br/>
                         <label>Brand: </label><br/><input type="text" name="brand" /><br />
                         <br/>
+                        <label>Model: </label><br/><input type="text" name="model" /><br />
+                        <br/>
                         <label>Serial Number: </label><br/><input type="text" name="serialNumber" /><br />
                         <br/>
                         <input type="submit" value="Submit" />
@@ -440,6 +442,7 @@ class eno_dashboard
                     $default = array(
                         'idTag' => '',
                         'brand' => '',
+                        'model' => '',
                         'serialNumber' => '',
                         'checkedOut' => FALSE,
                     );
