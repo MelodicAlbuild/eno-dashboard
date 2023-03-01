@@ -122,7 +122,7 @@ class Asset_List_Table extends WP_List_Table {
             $totalitems = $wpdb->query("SELECT * FROM wp_eno_assets");
         }
         //How many to display per page?
-        $perpage = 20;
+        $perpage = 10;
         //Which page is this?
         $paged = !empty($_GET["paged"]) ? $_GET["paged"] : FALSE;
         //Page Number

@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: ENO Dashboard
- * Version: 1.2.1
+ * Version: 1.2.4
  * Description: The Basic ENO Dashboard
  * Author: Alex Drum
  * Requires at least: 6.0

@@ -439,6 +439,7 @@ class eno_dashboard
                         <input type="submit" value="Submit" />
                     </div><!-- #universal-message-container -->
                     <?php
+                    global $wpdb;
                     $default = array(
                         'idTag' => '',
                         'brand' => '',
@@ -447,7 +448,6 @@ class eno_dashboard
                         'checkedOut' => FALSE,
                     );
                     $item = shortcode_atts( $default, $_REQUEST );
-                    global $wpdb;
                     $wpdb->insert( "wp_eno_assets", $item );
                     ?>
             </form>
