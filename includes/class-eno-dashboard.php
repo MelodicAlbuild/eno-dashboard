@@ -211,6 +211,7 @@ class eno_dashboard
         add_action( "load-$hook_name_3", [ $this, 'init_list_table_checkout' ] );
         add_action( "load-$hook_name_4", [ $this, 'init_list_table_checkin' ] );
         add_action( "load-$hook_name_3", [ $this, 'loading_table_data' ] );
+        add_action( "load-$hook_name_4", [ $this, 'loading_table_data' ] );
     }
 
     public function eno_dashboard_page_render()
@@ -351,6 +352,8 @@ class eno_dashboard
                         <input type="submit" value="Submit" />
                     </div><!-- #universal-message-container -->
             </form>
+            <br/><br/>
+            <p>Your Asset not showing up? Send me an email <a href="mailto:alex@melodicalbuild.com?subject=ENO%20Asset%20Missing&body=I%20am%20trying%20to%20check%20out%20an%20asset%20with%20the%20ID%20Tag%20of%20%3Cid%20tag%20number%3E%20but%20it%20does%20not%20exist%20in%20the%20system.">here!</a></p>
         </div><!-- .wrap -->
         <?php
     }
@@ -363,7 +366,7 @@ class eno_dashboard
 
         ?>
         <form method="post">
-            <input type="hidden" name="page" value="eno-dashboard-asset-checkout" />
+            <input type="hidden" name="page" value="eno-dashboard-asset-checkin" />
             <?php $this->wp_list_table_check_in->search_box('Search', 'search_id'); ?>
         </form>
         <?php
